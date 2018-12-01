@@ -1,4 +1,4 @@
 Usage
 ---
-- `go build main.go`
-- `./main -file="path/to/file"`
+-   `go build main.go`
+-   `./main -file="path/to/file"`
