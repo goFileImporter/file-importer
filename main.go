@@ -4,40 +4,35 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/yunabe/easycsv"
+	"github.com/catdevman/file-importer/types"
 	"log"
 )
 
-// Staff - this is the struct for a staff
-type Staff struct {
-	FirstName    string `index:"0" json:"firstName"`
-	LastName     string `index:"1" json:"lastName"`
-	Email        string `index:"2" json:"email"`
-	Level        string `index:"3" json:"level"`
-	Username     string `index:"4" json:"username"`
-	Password     string `index:"5" json:"-"`
-	SPN          string `index:"6" json:"spn"`
-	BuildingCode string `index:"7" json:"buildingCode"`
-	BuildingName string `index:"8" json:"buildingName"`
-	Role         string `index:"9" json:"role"`
-}
-
-var filePath string
+var (
+	filePath, fileType string
+)
 
 func main() {
 	flag.StringVar(&filePath, "file", "staff.csv", "Choose path for file")
+	flag.StringVar(&fileType, "type", "", "Choose type of file to process")
 	flag.Parse()
-	var rows []Staff
-	r := easycsv.NewReaderFile(filePath)
-	err := r.Loop(func(row Staff) error {
-		rows = append(rows, row)
-		return nil
-	})
+	var rows []types.Data
+	manager := types.NewManager(fileType)
+
+	rows, err := manager.GetData(filePath)
+
 	if err != nil {
-		log.Fatalf("Failed to read a CSV file: %v", err)
+		log.Fatal(err)
+	}
+	manager = manager.SetData(rows)
+
+	validator, ok := manager.(types.ManagerValidator)
+
+	if ok {
+		_ = validator.ValidateCollection(manager.ShowData())
 	}
 
-	s, _ := json.Marshal(rows)
+	s, _ := json.Marshal(manager.ShowData())
 	str := fmt.Sprintf("%s", s)
 	fmt.Println(str)
 
