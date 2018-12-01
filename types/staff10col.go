@@ -21,7 +21,7 @@ type Staff struct {
 }
 type StaffEmail string
 
-func (f StaffEmail) Valid() bool {
+func (se StaffEmail) Valid() bool {
 	return true
 }
 
