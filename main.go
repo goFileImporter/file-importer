@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/rihoj/file-importer/types"
+	"github.com/catdevman/file-importer/types"
 	"log"
 )
 
