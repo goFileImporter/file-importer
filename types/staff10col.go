@@ -1,9 +1,9 @@
 package types
 
 import (
-	"io"
-
 	"github.com/yunabe/easycsv"
+	"io"
+	"reflect"
 )
 
 // Staff - this is the struct for a staff
@@ -56,7 +56,15 @@ func NewStaffManager() StaffManager {
 func (sm StaffManager) GetData(filePath string) ([]Data, error) {
 	var rows []Data
 
-	r := easycsv.NewReaderFile(filePath)
+	r := easycsv.NewReaderFile(filePath,
+		easycsv.Option{
+			TypeDecoders: map[reflect.Type]interface{}{
+				reflect.TypeOf((StaffEmail)("")): func(s string) (StaffEmail, error) {
+					return StaffEmail(s), nil
+				},
+			},
+		},
+	)
 	err := r.Loop(func(row Staff) error {
 		rows = append(rows, row)
 		return nil
