@@ -16,15 +16,14 @@ func main() {
 	flag.StringVar(&filePath, "file", "staff.csv", "Choose path for file")
 	flag.StringVar(&fileType, "type", "", "Choose type of file to process")
 	flag.Parse()
-	var rows []types.Data
+
 	manager := types.NewManager(fileType)
 
-	rows, err := manager.GetData(filePath)
+	_, err := manager.GetData(filePath)
 
 	if err != nil {
 		log.Fatal(err)
 	}
-	manager = manager.SetData(rows)
 
 	validator, ok := manager.(types.ManagerValidator)
 
@@ -33,7 +32,6 @@ func main() {
 	}
 
 	s, _ := json.Marshal(manager.ShowData())
-	str := fmt.Sprintf("%s", s)
-	fmt.Println(str)
+	fmt.Printf("%s\n", s)
 
 }
