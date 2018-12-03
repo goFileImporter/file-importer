@@ -2,7 +2,7 @@ package types
 
 // Manager - interface for Managers to follow
 type Manager interface {
-	GetData(string) ([]Data, error)
+	LoadDataFromPath(string) ([]Data, error)
 	ShowData() []Data
 	// SetValidator(ManagerValidator) Manager
 }

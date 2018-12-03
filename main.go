@@ -19,7 +19,7 @@ func main() {
 
 	manager := types.NewManager(fileType)
 
-	_, err := manager.GetData(filePath)
+	_, err := manager.LoadDataFromPath(filePath)
 
 	if err != nil {
 		log.Fatal(err)

@@ -53,7 +53,7 @@ func NewStaffManager() *StaffManager {
 	}
 }
 
-func (sm *StaffManager) GetData(filePath string) ([]Data, error) {
+func (sm *StaffManager) LoadDataFromPath(filePath string) ([]Data, error) {
 	var rows []Data
 
 	r := easycsv.NewReaderFile(filePath,
