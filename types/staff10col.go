@@ -47,13 +47,13 @@ func (sm StaffManager) ValidateCollection(staff []Data) error {
 }
 
 // NewStaffManager - Constructor method for StaffManager
-func NewStaffManager() StaffManager {
-	return StaffManager{
+func NewStaffManager() *StaffManager {
+	return &StaffManager{
 		header: true,
 	}
 }
 
-func (sm StaffManager) GetData(filePath string) ([]Data, error) {
+func (sm *StaffManager) LoadDataFromPath(filePath string) ([]Data, error) {
 	var rows []Data
 
 	r := easycsv.NewReaderFile(filePath,
@@ -74,17 +74,11 @@ func (sm StaffManager) GetData(filePath string) ([]Data, error) {
 		return rows, err
 	}
 	err = sm.ValidateCollection(rows)
-
+    sm.data = rows;
 	if err != nil {
 		// Do something
 	}
 	return rows, err
-}
-
-// SetData - return sm
-func (sm StaffManager) SetData(staff []Data) Manager {
-	sm.data = staff
-	return sm
 }
 
 // ShowData - return data structure

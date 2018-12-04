@@ -9,13 +9,13 @@ func TestNewManagerStaff(t *testing.T) {
 	var staffManager Manager
 	staffManager = NewManager("staff10col")
 
-	_, err := staffManager.(Manager)
+	_, ok := staffManager.(Manager)
 
-	if err {
+	if !ok {
 		t.Fail()
 	}
 
-	if reflect.TypeOf(staffManager) != reflect.TypeOf(StaffManager{}) {
+	if reflect.TypeOf(staffManager) != reflect.TypeOf(&StaffManager{}) {
 		t.Fail()
 	}
 

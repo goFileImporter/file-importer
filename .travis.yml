@@ -1,0 +1,12 @@
+language: go
+
+go:
+  - "1.11.x"
+
+install:
+# Add Godeps dependencies to GOPATH and PATH
+  - export GO111MODULE=on;
+  - go mod download
+
+script:
+  - go test -v ./...
