@@ -1,10 +1,18 @@
 package types
 
 import (
+	"fmt"
+	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/yunabe/easycsv"
 	"io"
 	"reflect"
+	"regexp"
 )
+
+var RequireUnicode = []validation.Rule{
+	validation.Required,
+	validation.Match(regexp.MustCompile(`^[\d\p{L}\s’().'\-&",#_@+/]+$`)),
+}
 
 // Staff - this is the struct for a staff
 type Staff struct {
@@ -25,6 +33,14 @@ func (se StaffEmail) Valid() bool {
 	return true
 }
 
+func (s Staff) Validate() error {
+	return validation.ValidateStruct(&s,
+		validation.Field(&s.FirstName, RequireUnicode...),
+		validation.Field(&s.LastName, RequireUnicode...),
+		validation.Field(&s.Username, RequireUnicode...),
+	)
+}
+
 // StaffManager - this will house the configuration and the methods for working with a staff of many staff
 type StaffManager struct {
 	data   []Data
@@ -33,12 +49,19 @@ type StaffManager struct {
 	errors []error
 }
 
-func (s Staff) Valid() bool {
-	// Go through validation process here
-	if !s.Email.Valid() {
-		return false
+func (s Staff) Valid() (isValid bool) {
+	isValid = true
+
+	err := s.Validate()
+	if err != nil {
+		// Need to find a better way to handle errors.
+		fmt.Println(err)
+		isValid = false
 	}
-	return true
+	if !s.Email.Valid() {
+		isValid = false
+	}
+	return
 }
 
 func (sm StaffManager) ValidateCollection(staff []Data) error {
@@ -74,7 +97,7 @@ func (sm *StaffManager) LoadDataFromPath(filePath string) ([]Data, error) {
 		return rows, err
 	}
 	err = sm.ValidateCollection(rows)
-    sm.data = rows;
+	sm.data = rows
 	if err != nil {
 		// Do something
 	}

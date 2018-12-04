@@ -6,19 +6,19 @@ import (
 )
 
 func TestStaffValid(t *testing.T) {
-        staff := Staff{
-            "John",
-            "Doe",
-            "john@doe.com",
-            "1",
-            "jdoe",
-            "password",
-            "123",
-            "1234",
-            "My Building",
-            "staff",
-        }
-        assert.True(t, staff.Valid())
+	staff := Staff{
+		"John",
+		"Doe",
+		"john@doe.com",
+		"1",
+		"jdoe",
+		"password",
+		"123",
+		"1234",
+		"My Building",
+		"staff",
+	}
+	assert.True(t, staff.Valid())
 }
 
 func TestNewStaffManager(t *testing.T) {
