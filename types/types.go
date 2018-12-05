@@ -2,9 +2,10 @@ package types
 
 // Manager - interface for Managers to follow
 type Manager interface {
+	SetData([]Data)
 	LoadDataFromPath(string) ([]Data, error)
 	ShowData() []Data
-	// SetValidator(ManagerValidator) Manager
+	ManagerValidator
 }
 
 // Data - is the underlying data struct
@@ -12,9 +13,14 @@ type Data interface {
 	Valid() bool
 }
 
+type ErroredRecord struct {
+	err error
+	Data
+}
+
 // ManagerValidator - This is responsible for the thing that validates the data in the manager
 type ManagerValidator interface {
-	ValidateCollection([]Data) error
+	ValidateCollection() []ErroredRecord
 }
 
 const staff10ColType string = "staff10col"

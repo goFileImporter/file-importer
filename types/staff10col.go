@@ -1,6 +1,7 @@
 package types
 
 import (
+	"errors"
 	"github.com/yunabe/easycsv"
 	"io"
 	"reflect"
@@ -8,9 +9,9 @@ import (
 
 // Staff - this is the struct for a staff
 type Staff struct {
-	FirstName    string     `index:"0" json:"firstName"`
-	LastName     string     `index:"1" json:"lastName"`
-	Email        StaffEmail `index:"2" json:"email"`
+	FirstName    string     `index:"0" json:"firstName" faker:"first_name"`
+	LastName     string     `index:"1" json:"lastName" faker:"last_name"`
+	Email        StaffEmail `index:"2" json:"email" faker:"email"`
 	Level        string     `index:"3" json:"level"`
 	Username     string     `index:"4" json:"username"`
 	Password     string     `index:"5" json:"-"`
@@ -27,10 +28,10 @@ func (se StaffEmail) Valid() bool {
 
 // StaffManager - this will house the configuration and the methods for working with a staff of many staff
 type StaffManager struct {
-	data   []Data
-	header bool
-	reader io.Reader
-	errors []error
+	data           []Data
+	header         bool
+	reader         io.Reader
+	erroredRecords []ErroredRecord
 }
 
 func (s Staff) Valid() bool {
@@ -41,9 +42,13 @@ func (s Staff) Valid() bool {
 	return true
 }
 
-func (sm StaffManager) ValidateCollection(staff []Data) error {
-	// Loop over
-	return nil
+func (sm *StaffManager) ValidateCollection() []ErroredRecord {
+	for _, staff := range sm.data {
+		if !staff.(Staff).Valid() {
+			sm.erroredRecords = append(sm.erroredRecords, ErroredRecord{errors.New("Staff not valid"), staff.(Staff)})
+		}
+	}
+	return sm.erroredRecords
 }
 
 // NewStaffManager - Constructor method for StaffManager
@@ -73,12 +78,17 @@ func (sm *StaffManager) LoadDataFromPath(filePath string) ([]Data, error) {
 		//We could do something but better to let it trickle up
 		return rows, err
 	}
-	err = sm.ValidateCollection(rows)
-    sm.data = rows;
-	if err != nil {
+	erroredRecords := sm.ValidateCollection()
+	if len(erroredRecords) > 0 {
 		// Do something
+		panic("No data was loaded")
 	}
+	sm.SetData(rows)
 	return rows, err
+}
+
+func (sm *StaffManager) SetData(data []Data) {
+	sm.data = data
 }
 
 // ShowData - return data structure
