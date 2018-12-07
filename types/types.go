@@ -10,11 +10,11 @@ type Manager interface {
 
 // Data - is the underlying data struct
 type Data interface {
-	Valid() bool
+	Valid() []error
 }
 
 type ErroredRecord struct {
-	err error
+	err []error
 	Data
 }
 
