@@ -1,6 +1,7 @@
 module github.com/catdevman/file-importer
 
 require (
+	github.com/badoux/checkmail v0.0.0-20181122200916-2c0de5c0543d
 	github.com/bxcodec/faker v1.5.0
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect

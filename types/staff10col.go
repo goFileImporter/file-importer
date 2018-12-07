@@ -1,7 +1,7 @@
 package types
 
 import (
-	"errors"
+	"github.com/badoux/checkmail"
 	"github.com/yunabe/easycsv"
 	"io"
 	"reflect"
@@ -20,10 +20,15 @@ type Staff struct {
 	BuildingName string     `index:"8" json:"buildingName"`
 	Role         string     `index:"9" json:"role"`
 }
+
 type StaffEmail string
 
-func (se StaffEmail) Valid() bool {
-	return true
+func (se StaffEmail) Valid() error {
+	err := checkmail.ValidateFormat(string(se))
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // StaffManager - this will house the configuration and the methods for working with a staff of many staff
@@ -34,18 +39,19 @@ type StaffManager struct {
 	erroredRecords []ErroredRecord
 }
 
-func (s Staff) Valid() bool {
+func (s Staff) Valid() []error {
 	// Go through validation process here
-	if !s.Email.Valid() {
-		return false
+	var errs []error = nil
+	if err := s.Email.Valid(); err != nil {
+		errs = append(errs, err)
 	}
-	return true
+	return errs
 }
 
 func (sm *StaffManager) ValidateCollection() []ErroredRecord {
 	for _, staff := range sm.data {
-		if !staff.(Staff).Valid() {
-			sm.erroredRecords = append(sm.erroredRecords, ErroredRecord{errors.New("Staff not valid"), staff.(Staff)})
+		if errs := staff.(Staff).Valid(); errs != nil {
+			sm.erroredRecords = append(sm.erroredRecords, ErroredRecord{errs, staff.(Staff)})
 		}
 	}
 	return sm.erroredRecords

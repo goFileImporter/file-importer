@@ -18,6 +18,12 @@ type StaffManagerSuite struct {
 	staffManagerFaker Manager
 }
 
+type StaffManagerSuiteWithErrs struct {
+	suite.Suite
+	staffManager      Manager
+	staffManagerFaker Manager
+}
+
 func (suite *StaffTestSuite) SetupTest() {
 	err := faker.FakeData(&suite.staff)
 	if err != nil {
@@ -26,7 +32,7 @@ func (suite *StaffTestSuite) SetupTest() {
 }
 
 func (suite *StaffTestSuite) TestStaffStructValid() {
-	suite.True(suite.staff.Valid())
+	suite.Empty(suite.staff.Valid())
 }
 
 func TestStaffSuite(t *testing.T) {
@@ -40,14 +46,35 @@ func (suite *StaffManagerSuite) SetupTest() {
 	suite.True(staffManagerOk)
 	suite.staffManager = staffManager
 
+	var staff Staff
 	for i := 0; i < 10; i++ {
-		var staff Staff
 		err := faker.FakeData(&staff)
 		if err != nil {
 			panic(err)
 		}
 		suite.staffManager.SetData(append(suite.staffManager.ShowData(), staff))
 	}
+}
+
+func (suite *StaffManagerSuiteWithErrs) SetupTest() {
+	var staffManager Manager
+	staffManager = NewStaffManager()
+	_, staffManagerOk := staffManager.(Manager)
+	suite.True(staffManagerOk)
+	suite.staffManager = staffManager
+
+	var staff Staff
+	var st []Data
+	for i := 0; i < 10; i++ {
+		err := faker.FakeData(&staff)
+		staff.Email = "bob.bob.com"
+		if err != nil {
+			panic(err)
+		}
+		st = append(st, staff)
+	}
+
+	suite.staffManager.SetData(st)
 }
 
 func (s *StaffManagerSuite) TestLoadDataFromPath() {
@@ -65,7 +92,18 @@ func (suite *StaffManagerSuite) TestStaffCollectionValid() {
 		fmt.Println(err.err)
 	}
 	suite.Empty(errs)
+}
 
+func (suite *StaffManagerSuiteWithErrs) TestStaffCollectionNotValid() {
+
+	errs := (suite.staffManager).ValidateCollection()
+	suite.NotEmpty(errs)
+}
+
+func (s *StaffManagerSuiteWithErrs) TestLoadDataFromPath() {
+	var err error
+	_, err = s.staffManager.LoadDataFromPath("../failing/file/that/will/fail/do/not/put/a/file/here.csv")
+	s.NotNil(err)
 }
 
 func (suite *StaffManagerSuite) TestShowData() {
@@ -74,4 +112,5 @@ func (suite *StaffManagerSuite) TestShowData() {
 
 func TestStaffManagerSuite(t *testing.T) {
 	suite.Run(t, new(StaffManagerSuite))
+	suite.Run(t, new(StaffManagerSuiteWithErrs))
 }
