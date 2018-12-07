@@ -28,7 +28,7 @@ func main() {
 	validator, ok := manager.(types.ManagerValidator)
 
 	if ok {
-		_ = validator.ValidateCollection(manager.ShowData())
+		_ = validator.ValidateCollection()
 	}
 
 	s, _ := json.Marshal(manager.ShowData())
