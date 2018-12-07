@@ -1,14 +1,12 @@
 package types
 
 import (
-	"errors"
-	"fmt"
+	"github.com/badoux/checkmail"
+	validation "github.com/go-ozzo/ozzo-validation"
+	"github.com/yunabe/easycsv"
 	"io"
 	"reflect"
 	"regexp"
-
-	validation "github.com/go-ozzo/ozzo-validation"
-	"github.com/yunabe/easycsv"
 )
 
 var RequireUnicode = []validation.Rule{
@@ -29,10 +27,15 @@ type Staff struct {
 	BuildingName string     `index:"8" json:"buildingName"`
 	Role         string     `index:"9" json:"role"`
 }
+
 type StaffEmail string
 
-func (se StaffEmail) Valid() bool {
-	return true
+func (se StaffEmail) Valid() error {
+	err := checkmail.ValidateFormat(string(se))
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s Staff) Validate() error {
@@ -51,25 +54,19 @@ type StaffManager struct {
 	erroredRecords []ErroredRecord
 }
 
-func (s Staff) Valid() (isValid bool) {
-	isValid = true
-
-	err := s.Validate()
-	if err != nil {
-		// Need to find a better way to handle errors.
-		fmt.Println(err)
-		isValid = false
+func (s Staff) Valid() []error {
+	// Go through validation process here
+	var errs []error = nil
+	if err := s.Email.Valid(); err != nil {
+		errs = append(errs, err)
 	}
-	if !s.Email.Valid() {
-		isValid = false
-	}
-	return
+	return errs
 }
 
 func (sm *StaffManager) ValidateCollection() []ErroredRecord {
 	for _, staff := range sm.data {
-		if !staff.(Staff).Valid() {
-			sm.erroredRecords = append(sm.erroredRecords, ErroredRecord{errors.New("Staff not valid"), staff.(Staff)})
+		if errs := staff.(Staff).Valid(); errs != nil {
+			sm.erroredRecords = append(sm.erroredRecords, ErroredRecord{errs, staff.(Staff)})
 		}
 	}
 	return sm.erroredRecords
