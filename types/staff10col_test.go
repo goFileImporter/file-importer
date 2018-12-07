@@ -2,9 +2,10 @@ package types
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/bxcodec/faker"
 	"github.com/stretchr/testify/suite"
-	"testing"
 )
 
 type StaffTestSuite struct {

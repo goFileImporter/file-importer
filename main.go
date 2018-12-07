@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/catdevman/file-importer/types"
+	"github.com/goFileImporter/file-importer/types"
 	"log"
 )
 

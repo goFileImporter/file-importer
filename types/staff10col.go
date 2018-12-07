@@ -2,10 +2,17 @@ package types
 
 import (
 	"github.com/badoux/checkmail"
+	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/yunabe/easycsv"
 	"io"
 	"reflect"
+	"regexp"
 )
+
+var RequireUnicode = []validation.Rule{
+	validation.Required,
+	validation.Match(regexp.MustCompile(`^[\d\p{L}\s’().'\-&",#_@+/]+$`)),
+}
 
 // Staff - this is the struct for a staff
 type Staff struct {
@@ -29,6 +36,14 @@ func (se StaffEmail) Valid() error {
 		return err
 	}
 	return nil
+}
+
+func (s Staff) Validate() error {
+	return validation.ValidateStruct(&s,
+		validation.Field(&s.FirstName, RequireUnicode...),
+		validation.Field(&s.LastName, RequireUnicode...),
+		validation.Field(&s.Username, RequireUnicode...),
+	)
 }
 
 // StaffManager - this will house the configuration and the methods for working with a staff of many staff
